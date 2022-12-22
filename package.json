@@ -1,6 +1,6 @@
 {
   "name": "health-checker-aws",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1280.0",
-    "health-checker-aws": "^1.0.0",
+    "health-checker-aws": "^1.0.5",
     "node-fetch": "^3.3.0",
     "uuid": "^9.0.0"
   }

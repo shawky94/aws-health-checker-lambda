@@ -14,13 +14,13 @@ exports.handler = async (event, context, callback) => {
   await createHealthCheckRecord({
     url,
     state: checkUrl ? "UP" : "DOWN",
-    region: "us-east-2",
+    region: "us-east-1",
   });
 
   if (!checkUrl) {
     const prevRecords = await getHealthCheckRecods({
       url: "http://www.facebooasdsadk1.com/",
-      region: "us-east-2",
+      region: "us-east-1",
     });
     console.log(prevRecords);
     return null;
