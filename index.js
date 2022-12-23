@@ -12,8 +12,8 @@ const {
   get: getHealthCheckRecods,
 } = require("./repository/healthCheck");
 
-const RUN_IN_MULTI_REGIONS = true;
-const MAIN_REGION = AWS_REGIONS_CODES.US_EAST_1;
+const RUN_IN_MULTI_REGIONS = process.env.RUN_IN_MULTI_REGIONS === "true";
+const MAIN_REGION = process.env.MAIN_REGION || AWS_REGIONS_CODES.US_EAST_1;
 
 exports.handler = async (event, context, callback) => {
   const url = "http://www.facebooasdsadk1.com/";
@@ -30,7 +30,7 @@ exports.handler = async (event, context, callback) => {
   if (!checkUrl) {
     const shouldSendEmail = await isFailureThresholdExceeded(regionCode);
 
-    if (shouldSendEmail) sendMail(event, callback);
+    // if (shouldSendEmail)  sendMail(event, callback);
   }
 };
 
@@ -53,9 +53,9 @@ const isFailureThresholdExceeded = async (regionCode) => {
       );
     });
 
-    const allRegionsResult = (
-      await Promise.all(prevRecordsPerRegionPromises)
-    ).flat();
+    const allRegionsResult = (await Promise.all(prevRecordsPerRegionPromises))
+      .map((item) => item.Items)
+      .flat();
 
     return allRegionsResult.every(
       (item) => item.checkResult === HEALTH_CHECK_RESULT.DOWN
@@ -69,10 +69,8 @@ const isFailureThresholdExceeded = async (regionCode) => {
       numberOfRecords: MAX_FAILURE_COUNT,
     });
 
-    return (
-      prevRecords.filter(
-        (item) => item.checkResult === HEALTH_CHECK_RESULT.DOWN
-      ).length === MAX_FAILURE_COUNT
+    return prevRecords.Items.every(
+      (item) => item.checkResult === HEALTH_CHECK_RESULT.DOWN
     );
   }
 };
