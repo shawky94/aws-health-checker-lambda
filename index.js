@@ -11,16 +11,19 @@ exports.handler = async (event, context, callback) => {
   const checkUrl = await isWebsiteUp(url);
   console.log(checkUrl);
 
+  const regionCode = process.env.AWS_REGION;
+  console.log(regionCode);
+
   await createHealthCheckRecord({
     url,
     state: checkUrl ? "UP" : "DOWN",
-    region: "us-east-1",
+    region: regionCode,
   });
 
   if (!checkUrl) {
     const prevRecords = await getHealthCheckRecods({
       url: "http://www.facebooasdsadk1.com/",
-      region: "us-east-1",
+      region: regionCode,
     });
     console.log(prevRecords);
     return null;

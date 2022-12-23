@@ -1,45 +1,47 @@
-const aws = require('aws-sdk');
-const { v4: uuidv4 } = require('uuid');
+const aws = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
 
 const dynamo = new aws.DynamoDB.DocumentClient();
 
 const BASE_TABLE_NAME = "healthCheck";
 
-const get = async ({url, state, region = 'us-east-1'}) => {
-    console.log(url)
-    
-    const params = {
-    TableName: `${BASE_TABLE_NAME}-${region}`,
+const constructPrimaryKey = (url, region) => {
+  return `${url}^${region}`;
+};
+
+const get = async ({ url, state, region }) => {
+  console.log(url);
+
+  const params = {
+    TableName: `${BASE_TABLE_NAME}`,
     FilterExpression: "checkFromRegion = :t",
     KeyConditionExpression: "checkUrl = :s and checkTimestamp < :r",
     ScanIndexForward: false,
     Limit: 3,
     ExpressionAttributeValues: {
-        ":s": url,
-        ":r": Date.now(),
-        ":t": region
-    }
-}
-    return dynamo
-      	.query(params)
-      	.promise();
-}
+      ":s": constructPrimaryKey(url, region),
+      ":r": Date.now(),
+      ":t": region,
+    },
+  };
+  return dynamo.query(params).promise();
+};
 
-const create = async ({url, state, region = 'us-east-1'}) => {
+const create = async ({ url, state, region }) => {
   return dynamo
-      	.put({
-        	TableName:`${BASE_TABLE_NAME}-${region}`,
-        	Item: {
-            checkUrl: url,
-          	checkResult: state,
-          	checkFromRegion: region,
-          	checkTimestamp: Date.now()
-        	}
-      	})
-      	.promise();
-}
+    .put({
+      TableName: `${BASE_TABLE_NAME}`,
+      Item: {
+        checkUrl: constructPrimaryKey(url, region),
+        checkResult: state,
+        checkFromRegion: region,
+        checkTimestamp: Date.now(),
+      },
+    })
+    .promise();
+};
 
 module.exports = {
-   create,
-   get
-}
+  create,
+  get,
+};
