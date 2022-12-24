@@ -38,13 +38,13 @@ const handleUrl = async (url) => {
     region: regionCode,
   });
 
-  if (!checkUrl) {
-    const shouldSendEmail = await isFailureThresholdExceeded(regionCode);
+  //   if (!checkUrl) {
+  const shouldSendEmail = await isFailureThresholdExceeded(regionCode);
 
-    // if (shouldSendEmail)  sendMail(event, callback);
-  }
-
-  return;
+  // if (shouldSendEmail) {
+  await sendMail({ websiteUrl: url, regionName: regionCode });
+  // }
+  //   }
 };
 
 const isFailureThresholdExceeded = async (regionCode) => {

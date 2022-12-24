@@ -1,43 +1,34 @@
-const aws = require('aws-sdk');
-const ses = new aws.SES({region: 'us-east-1'});
+const aws = require("aws-sdk");
 
-async function sendMail(event, callback) {
-  const subject = "Hi there"
-  const body = "this is a corn job test"
+const ses = new aws.SES({ region: "us-east-1" });
+const { getTemplate } = require("../emailTemplates/websiteDown");
+
+async function sendMail({ websiteUrl, regionName }) {
+  const subject = "Website is down warning";
   const emailParams = {
-        Destination: {
-          ToAddresses: ["ahmedselsabagh94@gmail.com"],
+    Destination: {
+      ToAddresses: ["ahmedselsabagh94@gmail.com"],
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: getTemplate(websiteUrl, regionName),
         },
-        Message: {
-          Body: {
-            Text: { Data: body },
-          },
-          Subject: { Data: subject },
-        },
-        Source: "ahmedselsabagh94@gmail.com",
+      },
+      Subject: { Data: subject },
+    },
+    Source: "ahmedselsabagh94@gmail.com",
   };
-      
+
   try {
-        let key = await ses.sendEmail(emailParams).promise();
-        console.log("MAIL SENT SUCCESSFULLY!!");      
-
-        callback(null, {
-        'statusCode': 200,
-        'body': 'sucess',
-        'headers': { 
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, PUT, GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
-        }
-    })
-        
-
+    await ses.sendEmail(emailParams).promise();
+    console.log("MAIL SENT SUCCESSFULLY!!");
   } catch (e) {
-        console.log("FAILURE IN SENDING MAIL!!", e);
-  }  
-  callback(null,true);
+    console.log("FAILURE IN SENDING MAIL!!", e);
+  }
 }
 
 module.exports = {
-    sendMail
-}
+  sendMail,
+};
