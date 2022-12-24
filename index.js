@@ -38,16 +38,16 @@ const handleUrl = async (url) => {
     region: regionCode,
   });
 
-  //   if (!checkUrl) {
-  const shouldSendEmail = await isFailureThresholdExceeded(regionCode);
+  if (!checkUrl) {
+    const shouldSendEmail = await isFailureThresholdExceeded(regionCode);
 
-  // if (shouldSendEmail) {
-  await sendMail({ websiteUrl: url, regionName: regionCode });
-  // }
-  //   }
+    if (shouldSendEmail) {
+      await sendMail({ websiteUrl: url, regionName: regionCode });
+    }
+  }
 };
 
-const isFailureThresholdExceeded = async (regionCode) => {
+const isFailureThresholdExceeded = async (url, regionCode) => {
   if (RUN_IN_MULTI_REGIONS) {
     // 1 failure for each region
     const isLambdaRunningInMainRegion = regionCode === MAIN_REGION;
@@ -59,8 +59,8 @@ const isFailureThresholdExceeded = async (regionCode) => {
     SUPPORTED_REGIONS.forEach((region) => {
       prevRecordsPerRegionPromises.push(
         getHealthCheckRecods({
-          url: "http://www.facebooasdsadk1.com/",
-          region: region,
+          url,
+          region,
           numberOfRecords: MAX_FAILURE_COUNT,
         })
       );
@@ -74,10 +74,10 @@ const isFailureThresholdExceeded = async (regionCode) => {
       (item) => item.checkResult === HEALTH_CHECK_RESULT.DOWN
     );
   } else {
-    // 3 successive failures
+    // 3 successive failures when running in 1 region only
     const MAX_FAILURE_COUNT = 3;
     const prevRecords = await getHealthCheckRecods({
-      url: "http://www.facebooasdsadk1.com/",
+      url,
       region: regionCode,
       numberOfRecords: MAX_FAILURE_COUNT,
     });
