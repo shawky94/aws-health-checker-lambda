@@ -39,7 +39,7 @@ const handleUrl = async (url) => {
   });
 
   if (!checkUrl) {
-    const shouldSendEmail = await isFailureThresholdExceeded(regionCode);
+    const shouldSendEmail = await isFailureThresholdExceeded(url, regionCode);
 
     if (shouldSendEmail) {
       await sendMail({ websiteUrl: url, regionName: regionCode });
@@ -82,8 +82,10 @@ const isFailureThresholdExceeded = async (url, regionCode) => {
       numberOfRecords: MAX_FAILURE_COUNT,
     });
 
-    return prevRecords.Items.every(
-      (item) => item.checkResult === HEALTH_CHECK_RESULT.DOWN
+    const items = prevRecords.Items;
+    return (
+      items.every((item) => item.checkResult === HEALTH_CHECK_RESULT.DOWN) &&
+      items.length === MAX_FAILURE_COUNT
     );
   }
 };
