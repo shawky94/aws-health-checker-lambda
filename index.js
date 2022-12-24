@@ -12,11 +12,22 @@ const {
   get: getHealthCheckRecods,
 } = require("./repository/healthCheck");
 
+const { list: getCheckURLRecods } = require("./repository/url");
+
 const RUN_IN_MULTI_REGIONS = process.env.RUN_IN_MULTI_REGIONS === "true";
 const MAIN_REGION = process.env.MAIN_REGION || AWS_REGIONS_CODES.US_EAST_1;
 
 exports.handler = async (event, context, callback) => {
-  const url = "http://www.facebooasdsadk1.com/";
+  const urls = (await getCheckURLRecods()).Items.map((item) => item.url);
+  const promises = [];
+  urls.forEach(async (url) => {
+    promises.push(handleUrl(url));
+  });
+
+  return Promise.all(promises);
+};
+
+const handleUrl = async (url) => {
   const checkUrl = await isWebsiteUp(url);
 
   const regionCode = process.env.AWS_REGION;
@@ -32,6 +43,8 @@ exports.handler = async (event, context, callback) => {
 
     // if (shouldSendEmail)  sendMail(event, callback);
   }
+
+  return;
 };
 
 const isFailureThresholdExceeded = async (regionCode) => {
@@ -76,9 +89,7 @@ const isFailureThresholdExceeded = async (regionCode) => {
 };
 
 const isWebsiteUp = async (url) => {
-  const options = new URL(url);
-
-  const response = await makeRequest(options);
+  const response = await makeRequest(url);
 
   return response === SUCCESS ? true : false;
 };

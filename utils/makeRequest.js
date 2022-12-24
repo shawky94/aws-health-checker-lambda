@@ -1,22 +1,59 @@
-var http = require('http');
-const { SUCCESS, FAILURE } = require("./constants.js") ;
+const https = require("https");
+const http = require("http");
 
-const makeRequest = (options) => {
+const { SUCCESS, FAILURE } = require("./constants.js");
+
+const httpsRequest = (url) => {
   return new Promise((resolve, reject) => {
-    let req = http.request(options);
+    const options = {
+      host: url,
+      method: "GET",
+    };
 
-    req.on('response', res => {
+    const req = https.request(options, (res) => {
       resolve(SUCCESS);
     });
 
-    req.on('error', err => {
+    req.on("error", (e) => {
       resolve(FAILURE);
     });
-
     req.end();
   });
-}
+};
+
+const httpRequest = (url) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const req = http.get(url, () => {
+        resolve(SUCCESS);
+      });
+
+      req.on("error", (e) => {
+        resolve(FAILURE);
+      });
+
+      req.end();
+    } catch (e) {
+      resolve(false);
+    }
+  });
+};
+
+const makeRequest = async (url) => {
+  const urlWithoutProtocolAndTrailingForwardSlash = cleanUrl(url);
+
+  const [httpsResponse, httpRespone] = await Promise.all([
+    httpsRequest(urlWithoutProtocolAndTrailingForwardSlash),
+    httpRequest(urlWithoutProtocolAndTrailingForwardSlash),
+  ]);
+
+  return httpsResponse || httpRespone;
+};
+
+const cleanUrl = (url) => {
+  return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+};
 
 module.exports = {
-   makeRequest 
-}
+  makeRequest,
+};

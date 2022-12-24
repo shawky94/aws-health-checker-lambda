@@ -9,8 +9,6 @@ const constructPrimaryKey = (url, region) => {
 };
 
 const get = async ({ url, region, numberOfRecords }) => {
-  console.log(url);
-
   const params = {
     TableName: `${BASE_TABLE_NAME}`,
     FilterExpression: "checkFromRegion = :t",
