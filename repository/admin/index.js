@@ -3,7 +3,7 @@ const { DynamoClient } = require("../dynamoClient");
 
 const dynamo = DynamoClient.getInstance();
 
-const BASE_TABLE_NAME = "checkUrl";
+const BASE_TABLE_NAME = "admin";
 
 const list = async () => {
   const params = {
@@ -12,16 +12,15 @@ const list = async () => {
   return dynamo.scan(params).promise();
 };
 
-const create = async ({ url }) => {
-  if (!url) {
-    throw new Error("url parameter is missing");
+const create = async ({ adminEmail }) => {
+  if (!adminEmail) {
+    throw new Error("missing mandatory parameter 'adminEmail'");
   }
-
   return dynamo
     .put({
       TableName: `${BASE_TABLE_NAME}`,
       Item: {
-        checkUrl: url,
+        adminEmail,
       },
     })
     .promise();

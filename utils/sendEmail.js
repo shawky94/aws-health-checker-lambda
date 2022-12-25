@@ -1,13 +1,17 @@
 const aws = require("aws-sdk");
+const { list: getAdminsList } = require("../repository/admin");
 
 const ses = new aws.SES({ region: "us-east-1" });
 const { getTemplate } = require("../emailTemplates/websiteDown");
 
-async function sendMail({ websiteUrl, regionName }) {
+const sendMail = async ({ websiteUrl, regionName }) => {
+  // get admins from config db
+  const admins = (await getAdminsList()).Items.map((item) => item.adminEmail);
+
   const subject = "Website is down warning";
   const emailParams = {
     Destination: {
-      ToAddresses: ["ahmedselsabagh94@gmail.com"],
+      ToAddresses: admins,
     },
     Message: {
       Body: {
@@ -18,7 +22,7 @@ async function sendMail({ websiteUrl, regionName }) {
       },
       Subject: { Data: subject },
     },
-    Source: "ahmedselsabagh94@gmail.com",
+    Source: admins?.[0],
   };
 
   try {
@@ -27,7 +31,7 @@ async function sendMail({ websiteUrl, regionName }) {
   } catch (e) {
     console.log("FAILURE IN SENDING MAIL!!", e);
   }
-}
+};
 
 module.exports = {
   sendMail,

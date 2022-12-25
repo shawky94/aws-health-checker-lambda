@@ -1,6 +1,7 @@
 const aws = require("aws-sdk");
+const { DynamoClient } = require("../dynamoClient");
 
-const dynamo = new aws.DynamoDB.DocumentClient();
+const dynamo = DynamoClient.getInstance();
 
 const BASE_TABLE_NAME = "healthCheck";
 
@@ -9,10 +10,16 @@ const constructPrimaryKey = (url, region) => {
 };
 
 const get = async ({ url, region, numberOfRecords }) => {
+  if (!url || !region || !numberOfRecords) {
+    throw new Error(
+      `missing query params, plase send url, region and numberOfRecords`
+    );
+  }
+
   const params = {
     TableName: `${BASE_TABLE_NAME}`,
     FilterExpression: "checkFromRegion = :t",
-    KeyConditionExpression: "checkUrl = :s and checkTimestamp < :r",
+    KeyConditionExpression: "checkUrl = :s and checkTimestamp <= :r",
     ScanIndexForward: false, // descending on timestamp
     Limit: numberOfRecords,
     ExpressionAttributeValues: {
