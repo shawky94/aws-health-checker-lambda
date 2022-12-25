@@ -21,6 +21,7 @@ To ensure that the npm package is lightweight and efficient, no external depende
 - Give you lambda function permission to use `SES` and `DynamoDB` services
 - Populate `admin` table with admin emails. primary key is `adminEmail`
 - Populate `checkUrl` table with admin emails. primary key is `url`
+- Add eventBridge trigger that fires every x minutes (the interval between each check)
 - Set env variables for the lambda function:
   MAIN_REGION = 'us-east-1'
   RUN_IN_MULTI_REGIONS = `true` or `false`
