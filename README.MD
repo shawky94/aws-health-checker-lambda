@@ -15,17 +15,6 @@ The 'health checker' is a lightweight Node.js application that serves as an AWS 
 
 To ensure that the npm package is lightweight and efficient, no external dependencies are utilized in its development. This approach helps to keep the package small and streamlined, allowing it to perform optimally in various environments.
 
-## Prerequisites
-
-- Create 3 dynamoDB tables: `checkHealth`, `checkUrl` and `admin`
-- Give you lambda function permission to use `SES` and `DynamoDB` services
-- Populate `admin` table with admin emails. primary key is `adminEmail`
-- Populate `checkUrl` table with urls to monitor. primary key is `url`
-- Add eventBridge trigger that fires every x minutes (the interval between each check)
-- Set env variables for the lambda function:
-  MAIN_REGION = 'us-east-1'
-  RUN_IN_MULTI_REGIONS = `true` or `false`
-
 ## Installation
 
 ```sh
