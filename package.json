@@ -1,8 +1,12 @@
 {
   "name": "health-checker-aws",
-  "version": "1.0.53",
+  "version": "1.0.54",
   "description": "",
   "main": "index.js",
+  "keywords": [ 
+    "AWS lambda", 
+    "Node.js" 
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
